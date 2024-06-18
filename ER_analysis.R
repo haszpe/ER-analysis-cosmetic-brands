@@ -117,36 +117,35 @@ for (category in unique(fb_blab$'typ posta')){
   shapiro.p <- shapiro.test(typ$'suma reakcji')$p.value
   cat(category, ': ', shapiro.p, '\n')
 }
+#Normalnośc tylko dla Text
 
 for (category in unique(fb_kaya$'typ posta')){
   typ <- subset(fb_kaya, `typ posta` == category)
   shapiro.p <- shapiro.test(typ$'suma reakcji')$p.value
   cat(category, ': ', shapiro.p, '\n')
 }
+#Normalność tylko dla Video
 
 for (category in unique(fb_tolpa$'typ posta')){
   typ <- subset(fb_tolpa, `typ posta` == category)
   shapiro.p <- shapiro.test(typ$'suma reakcji')$p.value
   cat(category, ': ', shapiro.p, '\n')
 }
+#Normalność dla Video i Text
 
 for (category in unique(fb_miyo$'typ posta')){
   typ <- subset(fb_miyo, `typ posta` == category)
   shapiro.p <- shapiro.test(typ$'suma reakcji')$p.value
   cat(category, ': ', shapiro.p, '\n')
 }
+#Normalność dla Photo
 
 #HTC for 'Video' - not enough data; checking only for 'Photo'
 temp <- subset(fb_htc, `typ posta` == 'Photo')
 shapiro.test(temp$'suma reakcji')$p.value
+#Brak normalności
 
-# Z powyższych wynika, że normalnośc (przy poziomie istoności = 0.05) jest 
-# spełniona jedynie dla grup:
-# FB: BasicLab: Video & Photo
-# FB: Kaya: Photo & Text
-# FB: Tolpa: ---
-# FB: Miyo: --- 
-# FB: HTC: Photo
+
 
 # A czy normalność reakcji jest zachowana w markach?
 shapiro.test(fb_blab$'suma reakcji')$p.value
@@ -154,7 +153,9 @@ shapiro.test(fb_kaya$'suma reakcji')$p.value
 shapiro.test(fb_tolpa$'suma reakcji')$p.value
 shapiro.test(fb_miyo$'suma reakcji')$p.value
 shapiro.test(fb_htc$'suma reakcji')$p.value
-# No i prawie jest, ale Miyo nie ma rozkładu normalnego.
+# Tylko Miyo ma rozkład normalny.
+
+
 
 # INSTA: Sprawdzenie normalności rozkładu zmiennej w grupach ---------------------
 
@@ -163,34 +164,37 @@ for (category in unique(insta_blab$'typ posta')){
   shapiro.p <- shapiro.test(typ$'suma reakcji')$p.value
   cat(category, ': ', shapiro.p, '\n')
 }
+#Brak normalności dla wszystkich grup
 
 for (category in unique(insta_kaya$'typ posta')){
   typ <- subset(insta_kaya, `typ posta` == category)
   shapiro.p <- shapiro.test(typ$'suma reakcji')$p.value
   cat(category, ': ', shapiro.p, '\n')
 }
+# Brak normalności dla wszystkich grup
 
 for (category in unique(insta_tolpa$'typ posta')){
   typ <- subset(insta_tolpa, `typ posta` == category)
   shapiro.p <- shapiro.test(typ$'suma reakcji')$p.value
   cat(category, ': ', shapiro.p, '\n')
 }
+# Brak normalności dla wszystkich grup
 
-#Miya Sidecars - not enough data
-for (category in c('Image', 'Video')){
+for (category in unique(insta_miyo$'typ posta')){
   typ <- subset(insta_miyo, `typ posta` == category)
   shapiro.p <- shapiro.test(typ$'suma reakcji')$p.value
   cat(category, ': ', shapiro.p, '\n')
 }
+# Brak normalności dla wszystkich grup
 
 for (category in unique(insta_htc$'typ posta')){
   typ <- subset(insta_htc, `typ posta` == category)
   shapiro.p <- shapiro.test(typ$'suma reakcji')$p.value
   cat(category, ': ', shapiro.p, '\n')
 }
+# Brak normalności dla wszystkich grup
 
-# Z powyższych wynika, że normalnośc (przy poziomie istoności = 0.05) jest
-# zachowana dla wszystkich grup poza Sidecar'em w HairyTaleCosmetics.
+# Z powyższych wynika, że normalnośc nie jest zachowana dla żadnej z grup.
 
 # A czy normalność reakcji jest zachowana w markach?
 shapiro.test(insta_blab$'suma reakcji')$p.value
@@ -202,7 +206,4 @@ shapiro.test(insta_htc$'suma reakcji')$p.value
 # Normalność dla sumy reakcji wszystkich postów na instagramie jest zachowana
 # dla każdej z marek. 
 
-# Ze względu na brak normalności w niekórych gurpach, nie mozemy zastosować 
-# parametrycznej wariancji. Dlatego zastosujemy nieparamteryczną, wieloczynnikową
-# analizę wariancji.
 
