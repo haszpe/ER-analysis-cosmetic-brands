@@ -202,8 +202,29 @@ shapiro.test(insta_kaya$'suma reakcji')$p.value
 shapiro.test(insta_tolpa$'suma reakcji')$p.value
 shapiro.test(insta_miyo$'suma reakcji')$p.value
 shapiro.test(insta_htc$'suma reakcji')$p.value
-
-# Normalność dla sumy reakcji wszystkich postów na instagramie jest zachowana
-# dla każdej z marek. 
+# Brak normalności dla wszystkich marek.
 
 
+
+
+# Zgrupowane dane ------------------------------------------------------------
+data <- rbind(fb_blab[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER')], 
+              fb_kaya[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER')],
+              fb_tolpa[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER')],
+              fb_miyo[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER')],
+              fb_htc[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER')],
+              insta_blab[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER')],
+              insta_kaya[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER')],
+              insta_tolpa[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER')],
+              insta_miyo[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER')],
+              insta_htc[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER')])
+
+
+# Groupby 'source', 'brand', 'typ posta' and calculate mean
+średnie <- data %>% 
+              group_by(source, brand, `typ posta`) %>%
+              summarise(średnia_reakcji = mean(`suma reakcji`),
+                        średnia_ER = mean(ER))
+
+
+                     
