@@ -17,17 +17,17 @@ insta_miyo <-read_excel(path_file, sheet=9 ,range = "D1:M107", col_names = TRUE)
 insta_htc <- read_excel(path_file, sheet=13 ,range = "C1:L78", col_names = TRUE)[-3]
 
 # Number of profile followers ------------------------------------------------
-n_fb_blab <- 54000
-n_fb_kaya <- 68000
-n_fb_tolpa <- 162000
-n_fb_miyo <- 41000
-n_fb_htc <- 8000
+fb_blab['followers']<- 54000
+fb_kaya['followers']<- 68000
+fb_tolpa['followers']<- 162000
+fb_miyo['followers']<- 41000
+fb_htc['followers']<- 8000
 
-n_insta_blab <- 85700
-n_insta_kaya <- 106000
-n_insta_tolpa <- 74300
-n_insta_miyo <- 73700
-n_insta_htc <- 40200
+insta_blab['followers']<- 85700
+insta_kaya['followers']<- 106000
+insta_tolpa['followers']<- 74300
+insta_miyo['followers']<- 73700
+insta_htc['followers']<- 40200
 
 # Data transformations  -------------------------------------------------------
 fb_blab['suma reakcji'] <- rowSums(fb_blab[, c('liczba komentarzy', 'polubienia', 'liczba udostępnień')], na.rm=T)
@@ -56,13 +56,6 @@ colnames(insta_kaya)[2] ="typ posta"
 colnames(insta_tolpa)[2] ="typ posta"
 colnames(insta_miyo)[2] ="typ posta"
 colnames(insta_htc)[2] ="typ posta"
-
-
-for (tab in c('fb_blab', 'fb_kaya', 'fb_tolpa', 'fb_miyo', 'fb_htc', 'insta_blab', 
-              'insta_kaya', 'insta_tolpa', 'insta_miyo', 'insta_htc')){
-  tab <- get(tab)
-  tab$'ER od posta' <- tab$`ER od posta`*100
-}
 
 fb_blab$source <- c('Facebook')
 fb_blab$brand <- c('BasicLab')
@@ -99,19 +92,16 @@ insta_miyo$'typ posta' <- gsub('Sidecar', 'Photo', insta_miyo$'typ posta')
 insta_htc$'typ posta' <- gsub('Sidecar', 'Photo', insta_htc$'typ posta')
 
 # ER --------------------------------------------------------------------------
-fb_blab$ER <- (fb_blab$'suma reakcji'/n_fb_blab)*100
-fb_kaya$ER <- (fb_kaya$'suma reakcji'/n_fb_kaya)*100
-fb_tolpa$ER <- (fb_tolpa$'suma reakcji'/n_fb_tolpa)*100
-fb_miyo$ER <- (fb_miyo$'suma reakcji'/n_fb_miyo)*100
-fb_htc$ER <- (fb_htc$'suma reakcji'/n_fb_htc)*100
+for (tab in c('fb_blab', 'fb_kaya', 'fb_tolpa', 'fb_miyo', 'fb_htc', 'insta_blab', 
+              'insta_kaya', 'insta_tolpa', 'insta_miyo', 'insta_htc')){
+  temp <- get(tab)
+  temp$'ER od posta' <- temp$`ER od posta`*100
+  temp['ER'] <- (temp$'suma reakcji'/temp$followers)*100
+  assign(tab, temp)
+}
 
-insta_blab$ER <- (insta_blab$'suma reakcji'/n_insta_blab)*100
-insta_kaya$ER <- (insta_kaya$'suma reakcji'/n_insta_kaya)*100
-insta_tolpa$ER <- (insta_tolpa$'suma reakcji'/n_insta_tolpa)*100
-insta_miyo$ER <- (insta_miyo$'suma reakcji'/n_insta_miyo)*100
-insta_htc$ER <- (insta_htc$'suma reakcji'/n_insta_htc)*100
-
-# FB: Sprawdzenie normalności rozkładu zmiennej 'suma reakcji na post' w grupach ---------------------
+# Normalność ------------------------------------------------------------------
+# FB: Sprawdzenie normalności rozkładu zmiennej 'suma reakcji na post' w grupach
 for (category in unique(fb_blab$'typ posta')){
   typ <- subset(fb_blab, `typ posta` == category)
   shapiro.p <- shapiro.test(typ$'suma reakcji')$p.value
@@ -145,8 +135,6 @@ temp <- subset(fb_htc, `typ posta` == 'Photo')
 shapiro.test(temp$'suma reakcji')$p.value
 #Brak normalności
 
-
-
 # A czy normalność reakcji jest zachowana w markach?
 shapiro.test(fb_blab$'suma reakcji')$p.value
 shapiro.test(fb_kaya$'suma reakcji')$p.value
@@ -155,9 +143,7 @@ shapiro.test(fb_miyo$'suma reakcji')$p.value
 shapiro.test(fb_htc$'suma reakcji')$p.value
 # Tylko Miyo ma rozkład normalny.
 
-
-
-# INSTA: Sprawdzenie normalności rozkładu zmiennej w grupach ---------------------
+# INSTA: Sprawdzenie normalności rozkładu zmiennej w grupach 
 
 for (category in unique(insta_blab$'typ posta')){
   typ <- subset(insta_blab, `typ posta` == category)
@@ -232,8 +218,12 @@ data <- rbind(fb_blab[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER')],
   summarise(średnia_reakcji = mean(`suma reakcji`),
             średnia_ER = mean(ER))
 
-# Data export -----------------------------------------------------------------
+# Data export & CLeanup -------------------------------------------------------
 # write.table(średnie, file = "Data/Means.csv", row.names=FALSE)
 # write.table(średnie_marek, file = "Data/Means_brands.csv", row.names=FALSE)
+
+rm(temp, typ, category, path_file, shapiro.p, tab)
+
+# ANOVA nieparametryczna ------------------------------------------------------
 
                      
