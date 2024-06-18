@@ -205,6 +205,8 @@ shapiro.test(insta_htc$'suma reakcji')$p.value
 # Brak normalności dla wszystkich marek.
 
 
+# Ze względu na brak normalności nie mozemy zastosować testów parametrycznych.
+# Dlatego zastosujemy nieparamteryczną, wieloczynnikową analizę wariancji.
 
 
 # Zgrupowane dane ------------------------------------------------------------
