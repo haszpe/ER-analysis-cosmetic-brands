@@ -227,8 +227,13 @@ data <- rbind(fb_blab[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER')],
               group_by(source, brand, `typ posta`) %>%
               summarise(średnia_reakcji = mean(`suma reakcji`),
                         średnia_ER = mean(ER))
+średnie_marek <- data %>% 
+  group_by(source, brand) %>%
+  summarise(średnia_reakcji = mean(`suma reakcji`),
+            średnia_ER = mean(ER))
 
 # Data export -----------------------------------------------------------------
-write.table(średnie, file = "Results/China_metrics.csv", row.names=FALSE)
+# write.table(średnie, file = "Data/Means.csv", row.names=FALSE)
+# write.table(średnie_marek, file = "Data/Means_brands.csv", row.names=FALSE)
 
                      
