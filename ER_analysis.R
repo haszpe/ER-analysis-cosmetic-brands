@@ -2,7 +2,7 @@ library(readxl)
 library(dplyr)
 
 # Read Data  ------------------------------------------------------------------
-path_file <- "C:/Users/hanna/Downloads/Magisterka_marki_policzone.xlsx"
+path_file <- "Data/Magisterka_marki_policzone.xlsx"
 
 fb_blab <- read_excel(path_file, sheet=3 ,range = "D2:O192", col_names = TRUE)[-4][-7]
 fb_kaya <- read_excel(path_file, sheet=4 ,range = "D1:M115", col_names = TRUE)[-4][-7]
@@ -228,5 +228,7 @@ data <- rbind(fb_blab[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER')],
               summarise(średnia_reakcji = mean(`suma reakcji`),
                         średnia_ER = mean(ER))
 
+# Data export -----------------------------------------------------------------
+write.table(średnie, file = "Results/China_metrics.csv", row.names=FALSE)
 
                      
