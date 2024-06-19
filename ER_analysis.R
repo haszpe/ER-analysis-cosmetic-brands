@@ -41,22 +41,31 @@ colnames(fb_miyo)[4] ="typ posta"
 fb_htc['suma reakcji'] <- rowSums(fb_htc[, c('comments', 'likes', 'shares')], na.rm=T)
 colnames(fb_htc)[4] ="typ posta"
 
-# Outliers handling:
-fb_tolpa <- fb_tolpa[-58, ]
-insta_tolpa[61, 2] <- c('Video')
-
-
-insta_blab['suma reakcji'] <- rowSums(insta_blab[, c('likesCount', 'commentsCount')], na.rm=T)
-insta_kaya['suma reakcji'] <- rowSums(insta_kaya[, c('likesCount', 'commentsCount')], na.rm=T)
-insta_tolpa['suma reakcji'] <- rowSums(insta_tolpa[, c('likesCount', 'commentsCount')], na.rm=T)
-insta_miyo['suma reakcji'] <- rowSums(insta_miyo[, c('likesCount', 'commentsCount')], na.rm=T)
-insta_htc['suma reakcji'] <- rowSums(insta_htc[, c('likesCount', 'commentsCount')], na.rm=T)
 colnames(insta_blab)[2] ="typ posta"
 colnames(insta_kaya)[2] ="typ posta"
 colnames(insta_tolpa)[2] ="typ posta"
 colnames(insta_miyo)[2] ="typ posta"
 colnames(insta_htc)[2] ="typ posta"
 
+# Outliers handling:
+fb_tolpa <- fb_tolpa[-58, ] #GenericAttachmentType 
+insta_tolpa[61, 2] <- c('Video')
+
+# -1 in likes in insta tołpa are filled with mean value of 
+temp_tolpa <- insta_tolpa[-65,][-70,]
+mean_insta_tolpa_video_no_outliers <- mean(subset(temp_tolpa, `typ posta` == 'Video')$likesCount)
+insta_tolpa[65, 1] <- mean_insta_tolpa_video_no_outliers
+insta_tolpa[71, 1] <- mean_insta_tolpa_video_no_outliers
+rm(temp_tolpa, mean_insta_tolpa_video_no_outliers)
+
+# Sum of reactions
+insta_blab['suma reakcji'] <- rowSums(insta_blab[, c('likesCount', 'commentsCount')], na.rm=T)
+insta_kaya['suma reakcji'] <- rowSums(insta_kaya[, c('likesCount', 'commentsCount')], na.rm=T)
+insta_tolpa['suma reakcji'] <- rowSums(insta_tolpa[, c('likesCount', 'commentsCount')], na.rm=T)
+insta_miyo['suma reakcji'] <- rowSums(insta_miyo[, c('likesCount', 'commentsCount')], na.rm=T)
+insta_htc['suma reakcji'] <- rowSums(insta_htc[, c('likesCount', 'commentsCount')], na.rm=T)
+
+#Group names columns 
 fb_blab$source <- c('Facebook')
 fb_blab$brand <- c('BasicLab')
 fb_kaya$source <- c('Facebook')
@@ -96,7 +105,7 @@ for (tab in c('fb_blab', 'fb_kaya', 'fb_tolpa', 'fb_miyo', 'fb_htc', 'insta_blab
               'insta_kaya', 'insta_tolpa', 'insta_miyo', 'insta_htc')){
   temp <- get(tab)
   temp$'ER od posta' <- temp$`ER od posta`*100
-  temp['ER'] <- (temp$'suma reakcji'/temp$followers)*100
+  temp['ER[%]'] <- (temp$'suma reakcji'/temp$followers)*100
   assign(tab, temp)
 }
 
@@ -196,23 +205,64 @@ shapiro.test(insta_htc$'suma reakcji')$p.value
 
 
 # Zgrupowane dane ------------------------------------------------------------
-data <- rbind(fb_blab[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER')], 
-              fb_kaya[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER')],
-              fb_tolpa[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER')],
-              fb_miyo[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER')],
-              fb_htc[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER')],
-              insta_blab[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER')],
-              insta_kaya[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER')],
-              insta_tolpa[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER')],
-              insta_miyo[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER')],
-              insta_htc[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER')])
+data <- rbind(fb_blab[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER[%]')], 
+              fb_kaya[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER[%]')],
+              fb_tolpa[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER[%]')],
+              fb_miyo[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER[%]')],
+              fb_htc[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER[%]')],
+              insta_blab[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER[%]')],
+              insta_kaya[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER[%]')],
+              insta_tolpa[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER[%]')],
+              insta_miyo[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER[%]')],
+              insta_htc[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER[%]')])
 
+# Visualizations --------------------------------------------------------------
+library(ggplot2)
+ggplot(data, aes(x=interaction(source, brand, `typ posta`), y=`ER[%]`)) +
+  geom_boxplot() +
+  labs(x='Source - Brand - Typ Posta', y='ER [%]',
+       title='Boxplot of Engagement Rate by Source, Brand, and Type of Post') +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+ggplot(data, aes(x=interaction(source, brand, `typ posta`), y=`suma reakcji`)) +
+  geom_boxplot() +
+  labs(x='Source - Brand - Typ Posta', y='Sum of Reactions',
+       title='Boxplot of Sum of Reactions by Source, Brand, and Type of Post') +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+#Video na Instagramie Kaya ma bardzo odstającą wizualnie średnią.
+
+#Jak by wyglądał wykres bez tej grupy:
+data_no_insta_video_kaya <- data %>% filter(source != 'Instagram' | brand != 'Kaya' | `typ posta` != 'Video')
+
+ggplot(data_no_insta_video_kaya, aes(x=interaction(source, brand, `typ posta`), y=`ER[%]`)) +
+  geom_boxplot() +
+  labs(x='Source - Brand - Typ Posta', y='ER [%]',
+       title='Boxplot of Engagement Rate by Source, Brand, and Typ Posta (bez Kaya)') +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+# Wykresy grupami:
+ggplot(data %>% filter(source == 'Instagram'), aes(x=interaction(brand, `typ posta`), y=`ER[%]`)) +
+  geom_boxplot() +
+  labs(x='Brand - Typ Posta', y='ER [%]',
+       title='Boxplot of Engagement Rate by Brand and Type of Post on Instagram') +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+ggplot(data %>% filter(source == 'Facebook'), aes(x=interaction(brand, `typ posta`), y=`ER[%]`)) +
+  geom_boxplot() +
+  labs(x='Brand - Typ Posta', y='ER [%]',
+       title='Boxplot of Engagement Rate by Brand and Type of Post on Facebook') +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+# Statystyki opisowe
+summary(data)
+describe(data)
 
 # Groupby 'source', 'brand', 'typ posta' and calculate mean
 średnie <- data %>% 
-              group_by(source, brand, `typ posta`) %>%
-              summarise(średnia_reakcji = mean(`suma reakcji`),
-                        średnia_ER = mean(ER))
+              group_by(source, brand, 'typ posta') %>%
+              summarise(średnia_reakcji = mean('suma reakcji'),
+                        średnia_ER = mean('ER[%]'))
 średnie_marek <- data %>% 
   group_by(source, brand) %>%
   summarise(średnia_reakcji = mean(`suma reakcji`),
