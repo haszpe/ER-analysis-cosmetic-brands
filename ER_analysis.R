@@ -253,20 +253,25 @@ ggplot(data %>% filter(source == 'Facebook'), aes(x=interaction(brand, `typ post
        title='Boxplot of Engagement Rate by Brand and Type of Post on Facebook') +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
+ggplot(data %>% filter(brand == 'HTC'), aes(x=interaction(brand, `typ posta`), y=`ER[%]`)) +
+  geom_boxplot() +
+  labs(x='Brand - Typ Posta', y='ER [%]',
+       title='Boxplot of Engagement Rate by Brand and Type of Post on Facebook') +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-# Statystyki opisowe
+
+
+# Statystyki opisowe ---------------------------------------------------------
 summary(data)
-describe(data)
 
-# Groupby 'source', 'brand', 'typ posta' and calculate mean
-średnie <- data %>% 
-              group_by(source, brand, 'typ posta') %>%
-              summarise(średnia_reakcji = mean('suma reakcji'),
-                        średnia_ER = mean('ER[%]'))
-średnie_marek <- data %>% 
-  group_by(source, brand) %>%
-  summarise(średnia_reakcji = mean(`suma reakcji`),
-            średnia_ER = mean(ER))
+# group by source, brand and typ.post and return the mean values
+średnie <- data %>% group_by(source, brand, 'typ posta') %>%
+                    summarise(mean_ER = mean(`ER[%]`), 
+                              mean_reactions = mean(`suma reakcji`))
+średnie_marek <- data %>% group_by(source, brand) %>%
+  summarise(mean_ER = mean(`ER[%]`), 
+            mean_reactions = mean(`suma reakcji`))
+
 
 # Data export & CLeanup -------------------------------------------------------
 # write.table(średnie, file = "Data/Means.csv", row.names=FALSE)
@@ -274,6 +279,18 @@ describe(data)
 
 rm(temp, typ, category, path_file, shapiro.p, tab)
 
-# ANOVA nieparametryczna ------------------------------------------------------
+# ANOVA nieparametryczna - test Kruskala-Wallisa -----------------------------
+library(rstatix)
+interaction(data$source, data$brand, data$`typ posta`)
 
-                     
+#Test Kruskala-Wallisa - nieparametryczna anova jednoczynnikowa
+# Post Hoc dla Kruskala to kruskalmc z biblioteki pgirmess
+kruskal.test(data$`ER[%]` ~ data$source)
+library(pgirmess)
+kruskalmc(data$`ER[%]`, data$source)
+dunn_test(data=data, `ER[%]` ~ source)
+
+
+# HM HM HM
+# check ARTool -> for ART ANOVA
+
