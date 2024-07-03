@@ -2,7 +2,7 @@ library(readxl)
 library(dplyr)
 
 # Read Data  ------------------------------------------------------------------
-path_file <- "Data/Magisterka_marki_policzone.xlsx"
+path_file <- "~/Desktop/ER-analysis-cosmetic-brands/Data/Magisterka_marki_policzone.xlsx"
 
 fb_blab <- read_excel(path_file, sheet=3 ,range = "D2:O192", col_names = TRUE)[-4][-7]
 fb_kaya <- read_excel(path_file, sheet=4 ,range = "D1:M115", col_names = TRUE)[-4][-7]
@@ -216,6 +216,7 @@ data <- rbind(fb_blab[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER[%]')
               insta_miyo[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER[%]')],
               insta_htc[c('source', 'brand', 'typ posta', 'suma reakcji', 'ER[%]')])
 
+hist(data$`ER[%]`)
 # Visualizations --------------------------------------------------------------
 library(ggplot2)
 ggplot(data, aes(x=interaction(source, brand, `typ posta`), y=`ER[%]`)) +
@@ -265,12 +266,16 @@ ggplot(data %>% filter(brand == 'HTC'), aes(x=interaction(brand, `typ posta`), y
 summary(data)
 
 # group by source, brand and typ.post and return the mean values
+#dodaj liczebność grup
 średnie <- data %>% group_by(source, brand, 'typ posta') %>%
                     summarise(mean_ER = mean(`ER[%]`), 
-                              mean_reactions = mean(`suma reakcji`))
+                              mean_reactions = mean(`suma reakcji`),
+                              count = nrow())
+
 średnie_marek <- data %>% group_by(source, brand) %>%
   summarise(mean_ER = mean(`ER[%]`), 
-            mean_reactions = mean(`suma reakcji`))
+            mean_reactions = mean(`suma reakcji`),
+            count = n())
 
 
 # Data export & CLeanup -------------------------------------------------------
@@ -279,18 +284,29 @@ summary(data)
 
 rm(temp, typ, category, path_file, shapiro.p, tab)
 
-# ANOVA nieparametryczna - test Kruskala-Wallisa -----------------------------
+# ANOVA nieparametryczna - test Kruskala-Wallisa dla jednego czynnika ----------
 library(rstatix)
 interaction(data$source, data$brand, data$`typ posta`)
 
 #Test Kruskala-Wallisa - nieparametryczna anova jednoczynnikowa
 # Post Hoc dla Kruskala to kruskalmc z biblioteki pgirmess
-kruskal.test(data$`ER[%]` ~ data$source)
+
+# Source ma tylkdo dwie zmienne ale nie mają rozkładu normalnego więc Wilcoxona
+wilcox.test(data$source, data$`ER[%]`)
+# Source ma wpływ na ER
+kruskal.test(data$`ER[%]` ~ data$brand)
+# Brand ma wpływ na ER
+kruskal.test(data$`ER[%]` ~ data$`typ posta`)
+# Typ posta ma wpływ na ER
+
+#model liniowy
+# model <- lm(`ER[%]` ~ source + brand + `typ posta`, data=data)
+
+
 library(pgirmess)
 kruskalmc(data$`ER[%]`, data$source)
+kruskalmc(data$`ER[%]`, data$brand)
+kruskalmc(data$`ER[%]`, data$`typ posta`)
+
 dunn_test(data=data, `ER[%]` ~ source)
-
-
-# HM HM HM
-# check ARTool -> for ART ANOVA
 
